@@ -3,7 +3,7 @@
 # Команда разработки:
 
 - Разработчик 1: [Челнаков Денис](https://github.com/ChelnakovDenis)
-- Разработчик 2: [Аринов Данияр](https://github.com/vegitobluefan)
+- Разработчик 2, Тимлид: [Аринов Данияр](https://github.com/vegitobluefan)
 - Разработчик 3: [Кондратьев Никита](https://github.com/qqudra)
 
 # Описание проекта:

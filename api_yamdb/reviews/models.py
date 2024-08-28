@@ -3,7 +3,8 @@ from django.contrib.auth import get_user_model  # Временная заглу�
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-user = get_user_model()  # Временная заглушка
+
+User = get_user_model()  # Временная заглушка
 
 
 # class User(AbstractUser):

@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -114,6 +115,9 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 MAX_CHAR_LEN = 256
 
 MAX_SLUG_LEN = 50
+
+AUTH_USER_MODEL = 'users.User'
+
 
 # Authorization
 

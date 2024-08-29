@@ -1,14 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model  # Временная заглушка
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-
-User = get_user_model()  # Временная заглушка
-
-
-# class User(AbstractUser):
-#    """Кастомная модель пользователя."""
+from users.models import User
 
 
 class NameSlugMixin(models.Model):

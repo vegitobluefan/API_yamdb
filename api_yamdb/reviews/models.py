@@ -15,12 +15,10 @@ class NameSlugMixin(models.Model):
     """Миксин для полей name и slug."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN,
-        verbose_name='Название',
+        max_length=settings.MAX_CHAR_LEN, verbose_name='Название',
     )
     slug = models.SlugField(
-        max_length=settings.MAX_SLUG_LEN,
-        verbose_name='Слаг',
+        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг',
     )
 
     class Meta:
@@ -53,8 +51,7 @@ class Titles(models.Model):
     """Модель для произведений."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN,
-        verbose_name='Название произведения',
+        max_length=settings.MAX_CHAR_LEN, verbose_name='Название произведения',
     )
     year = models.IntegerField(
         verbose_name='Год выпуска',
@@ -65,9 +62,7 @@ class Titles(models.Model):
         blank=True,
     )
     genre = models.ManyToManyField(
-        Genres,
-        related_name='titles',
-        verbose_name='Жанр произведения'
+        Genres, related_name='titles', verbose_name='Жанр произведения'
     )
     category = models.ForeignKey(
         Categories,

@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
             'username',
             'email',
-            'biography',
+            'bio',
             'role'
         ]
 

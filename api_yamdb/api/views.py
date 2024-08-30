@@ -18,6 +18,7 @@ class CategoriesGenresMixin(
     """Миксин для повторяющегося кода."""
 
     pagination_class = LimitOffsetPagination
+    lookup_field = 'slug'
     permission_classes = (AdminOrSuperuserOrReadOnly,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,)
     search_fields = ('name',)
@@ -43,7 +44,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
-    permission_classes = (AdminOrAuthorOrReadOnly,)
+    permission_classes = (AdminOrSuperuserOrReadOnly,)
     pagination_class = LimitOffsetPagination
     filterset_class = TitlesFilter
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)

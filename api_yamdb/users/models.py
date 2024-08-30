@@ -9,6 +9,10 @@ ROLE_VARIANTS = [
     ('user', 'user')
 ]
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
+
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
@@ -17,7 +21,7 @@ class User(AbstractUser):
         unique=True
     )
 
-    biography = models.CharField(
+    bio = models.CharField(
         verbose_name="Биография",
         max_length=MAX_LEN_BIO,
         blank=True,
@@ -39,3 +43,17 @@ class User(AbstractUser):
         blank=True,
         unique=True
     )
+
+    @property
+    def is_admin(self):
+        return self.role == (
+            ADMIN or self.is_staff or self.is_superuser
+        )
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
+
+    @property
+    def is_user(self):
+        return self.role == USER

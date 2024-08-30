@@ -12,7 +12,7 @@ class NameSlugMixin(models.Model):
         max_length=settings.MAX_CHAR_LEN, verbose_name='Название',
     )
     slug = models.SlugField(
-        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг',
+        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
     )
 
     class Meta:

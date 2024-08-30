@@ -6,7 +6,7 @@ from .views import UserViewSet, get_token, registration
 app_name = 'users'
 
 router = SimpleRouter()
-router.register('users', UserViewSet, basename='users')
+router.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
     path(f'{API_VERSION}/auth/signup/', registration),

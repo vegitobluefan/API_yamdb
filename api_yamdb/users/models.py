@@ -14,10 +14,11 @@ class User(AbstractUser):
     """Модель для описания пользователя."""
     email = models.EmailField(
         verbose_name="Электронная почта",
+        # max_length=254,
         unique=True
     )
 
-    biography = models.CharField(
+    bio = models.CharField(
         verbose_name="Биография",
         max_length=MAX_LEN_BIO,
         blank=True,

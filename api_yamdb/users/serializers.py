@@ -2,20 +2,21 @@ from rest_framework import serializers
 from .models import User
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
+import re
 
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели User."""
     class Meta:
         model = User
-        fields = [
+        fields = (
             'first_name',
             'last_name',
             'username',
             'email',
-            'biography',
+            'bio',
             'role'
-        ]
+        )
 
 
 class UserCreateSerializer(serializers.Serializer):
@@ -27,6 +28,21 @@ class UserCreateSerializer(serializers.Serializer):
         if data['username'] == 'me':
             raise serializers.ValidationError(
                 'Выберите другой username')
+
+        if len(data['email']) > 254:
+            raise serializers.ValidationError(
+                'Email слишком длинный')
+
+        if len(data['username']) > 150:
+            raise serializers.ValidationError(
+                'Имя пользователя слишком длинное')
+
+        pattern = re.compile(r'^[\w.@+-]+\Z')
+
+        if not re.match(pattern, data['username']):
+            raise serializers.ValidationError(
+                'Имя пользователя включает запрещенные символы')
+
         return data
 
 

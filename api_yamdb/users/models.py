@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from api_yamdb.settings import (MAX_LEN_CODE, MAX_LEN_BIO, MAX_LEN_ROLE)
 
-from django.contrib.auth.models import AbstractUser
-from django.db import models
 
 ROLE_VARIANTS = [
     ('admin', 'admin'),

@@ -1,8 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model  # Временная заглушка
 from django.db import models
-
-from users.models import User
 
 
 class NameSlugMixin(models.Model):

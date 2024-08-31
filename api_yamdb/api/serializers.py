@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from reviews.models import (Categories, Genres, Titles,)
 

@@ -12,6 +12,10 @@ ROLE_VARIANTS = [
     ('user', 'user')
 ]
 
+USER = 'user'
+MODERATOR = 'moderator'
+ADMIN = 'admin'
+
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
@@ -63,3 +67,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_user(self):
+        return self.role == USER

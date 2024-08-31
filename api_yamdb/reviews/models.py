@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model  # Временная заглушка
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from users.models import User
 
@@ -72,3 +73,79 @@ class Titles(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class Reviews(models.Model):
+    title = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='произведение'
+    )
+    text = models.CharField(
+        max_length=200,
+        verbose_name='Текст отзыва'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='автор'
+    )
+    score = models.IntegerField(
+        verbose_name='оценка',
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ),
+        error_messages={'validators': 'Оценка от 1 до 10!'}
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author', ),
+                name='Ограничение на уникальность'
+            )]
+        ordering = ('pub_date',)
+
+    def __str__(self):
+        return self.text
+
+
+class Comments(models.Model):
+    review = models.ForeignKey(
+        Reviews,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='отзыв'
+    )
+    text = models.CharField(
+        verbose_name='текст комментария',
+        max_length=200
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='автор'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return self.text

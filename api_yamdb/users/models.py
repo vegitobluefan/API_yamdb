@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from api_yamdb.settings import (MAX_LEN_CODE, MAX_LEN_BIO, MAX_LEN_ROLE)
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
 ROLE_VARIANTS = [
     ('anon', 'anonimous'),
     ('admin', 'admin'),
@@ -13,25 +16,21 @@ ROLE_VARIANTS = [
 class User(AbstractUser):
     """Модель для описания пользователя."""
     email = models.EmailField(
-        verbose_name="Электронная почта",
-        # max_length=254,
+        verbose_name='Электронная почта',
         unique=True
     )
-
     bio = models.CharField(
-        verbose_name="Биография",
+        verbose_name='Биография',
         max_length=MAX_LEN_BIO,
         blank=True,
         null=True
     )
-
     role = models.CharField(
         verbose_name='Роль',
         choices=ROLE_VARIANTS,
         default='user',
         max_length=MAX_LEN_ROLE
     )
-
     confirmation_code = models.CharField(
         verbose_name='Код подтверждения',
         max_length=MAX_LEN_CODE,
@@ -40,3 +39,27 @@ class User(AbstractUser):
         blank=True,
         unique=True
     )
+
+    @property
+    def is_admin(self):
+        return any(
+            [self.role == 'admin', self.is_superuser, self.is_staff]
+        )
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'
+
+    class Meta(AbstractUser.Meta):
+        ordering = ['username']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='unique_username_email'
+            )
+        ]
+
+    def __str__(self):
+        return self.username

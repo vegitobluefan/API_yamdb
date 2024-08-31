@@ -1,6 +1,17 @@
 from rest_framework import permissions
 
 
+class IsAdmin(permissions.BasePermission):
+    """Права доступа для админа."""
+    def has_permission(self, request, view):
+        if not request.user.is_anonymous:
+            return (
+                request.user.is_superuser
+                or request.user.role == 'admin'
+            )
+        return False
+
+
 class AdminOrAuthorOrReadOnly(permissions.BasePermission):
     """Автор, админ, модератор. В остальных случаях только чтение."""
 

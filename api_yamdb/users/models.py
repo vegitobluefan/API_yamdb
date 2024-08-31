@@ -6,7 +6,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 ROLE_VARIANTS = [
-    ('anon', 'anonimous'),
     ('admin', 'admin'),
     ('moderator', 'moderator'),
     ('user', 'user')

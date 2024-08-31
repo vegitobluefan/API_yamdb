@@ -1,32 +1,30 @@
-from rest_framework import permissions, status, viewsets
 from .models import User
-from .serializers import UserSerializer, UserCreateSerializer, UserAccessTokenSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from .serializers import (UserSerializer,
+                          UserCreateSerializer,
+                          UserAccessTokenSerializer)
+from api.permissions import IsAdmin
+
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+
+from rest_framework import permissions, status, viewsets, filters
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action, api_view, permission_classes
 
-
-from api.permissions import IsAdmin
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели User."""
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     lookup_field = 'username'
+    search_fields = ['username', ]
     http_method_names = ["get", "post", "delete", "patch"]
-    # permission_classes_by_action = {'get': permissions.IsAdminUser}
-
-
-    def get_viewset(self):
-        return (IsAdmin(),)
-
 
     @action(methods=['patch', 'get'], detail=False,
             permission_classes=[permissions.IsAuthenticated])
@@ -42,7 +40,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def registration(request):
     """Функция для регистрации."""
     serializer = UserCreateSerializer(data=request.data)
@@ -86,7 +84,7 @@ def registration(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def get_token(request):
     """Функция для получения токена"""
 

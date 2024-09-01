@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from reviews.models import (Categories, Genres, Titles,)
 
@@ -37,3 +36,17 @@ class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Titles
         fields = ('id', 'name', 'year', 'description', 'genre', 'category',)
+
+
+class TitleRatingSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title, добавлен Rating."""
+
+    genre = GenresSerializer(many=True)
+    category = CategoriesSerializer()
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Titles
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating',
+        )

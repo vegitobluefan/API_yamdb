@@ -48,14 +48,29 @@ def registration(request):
     email = serializer.validated_data['email']
     username = serializer.validated_data['username']
 
-    if (User.objects.filter(email=email).exists() and User.objects.filter(username=username).exists()):
+    if (
+        User.objects.filter(email=email).exists()
+        and User.objects.filter(username=username).exists()
+    ):
         return Response(status=status.HTTP_200_OK)
 
-    if (User.objects.filter(email=email).exists() and not User.objects.filter(username=username).exists()):
-        return Response(status=status.HTTP_400_BAD_REQUEST, data="Пользователь с таким email уже существует.")
+    if (
+        User.objects.filter(email=email).exists()
+        and not User.objects.filter(username=username).exists()
+    ):
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data="Пользователь с таким email уже существует."
+        )
 
-    if (not User.objects.filter(email=email).exists() and User.objects.filter(username=username).exists()):
-        return Response(status=status.HTTP_400_BAD_REQUEST, data="Пользователь с таким username уже существует.")
+    if (
+        not User.objects.filter(email=email).exists()
+        and User.objects.filter(username=username).exists()
+    ):
+        return Response(
+            status=status.HTTP_400_BAD_REQUEST,
+            data="Пользователь с таким username уже существует."
+        )
     status.HTTP_403_FORBIDDEN
     user, code_created = User.objects.get_or_create(
         email=email,

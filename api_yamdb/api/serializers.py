@@ -36,3 +36,17 @@ class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Titles
         fields = ('id', 'name', 'year', 'description', 'genre', 'category',)
+
+
+class TitleRatingSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Title, добавлен Rating."""
+
+    genre = GenresSerializer(many=True)
+    category = CategoriesSerializer()
+    rating = serializers.IntegerField()
+
+    class Meta:
+        model = Titles
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating',
+        )

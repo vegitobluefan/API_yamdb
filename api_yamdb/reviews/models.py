@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from users.models import User
+
 
 class NameSlugMixin(models.Model):
     """Миксин для полей name и slug."""
@@ -32,7 +34,7 @@ class TextPubdateMixin(models.Model):
     )
 
 
-class Categories(NameSlugMixin):
+class Category(NameSlugMixin):
     """Модель для категорий произведений."""
 
     class Meta:
@@ -43,7 +45,7 @@ class Categories(NameSlugMixin):
         return self.title
 
 
-class Genres(NameSlugMixin):
+class Genre(NameSlugMixin):
     """Модель для жанров произведений."""
 
     class Meta:
@@ -54,7 +56,7 @@ class Genres(NameSlugMixin):
         return self.title
 
 
-class Titles(models.Model):
+class Title(models.Model):
     """Модель для произведений."""
 
     name = models.CharField(
@@ -69,10 +71,10 @@ class Titles(models.Model):
         blank=True,
     )
     genre = models.ManyToManyField(
-        Genres, related_name='titles', verbose_name='Жанр произведения'
+        Genre, related_name='titles', verbose_name='Жанр произведения'
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         related_name='titles',
         verbose_name='Категория произведения',
         on_delete=models.SET_NULL,
@@ -87,9 +89,9 @@ class Titles(models.Model):
         return self.title
 
 
-class Reviews(TextPubdateMixin):
+class Review(TextPubdateMixin):
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='произведение'
@@ -114,8 +116,8 @@ class Reviews(TextPubdateMixin):
         verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(
-                fields=('title', 'author', ),
-                name='Ограничение на уникальность'
+                fields=('title', 'author',),
+                name='unique_review'
             )]
         ordering = ('pub_date',)
 
@@ -123,9 +125,9 @@ class Reviews(TextPubdateMixin):
         return self.text
 
 
-class Comments(TextPubdateMixin):
+class Comment(TextPubdateMixin):
     review = models.ForeignKey(
-        Reviews,
+        Review,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='отзыв'

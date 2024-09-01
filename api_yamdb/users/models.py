@@ -4,6 +4,7 @@ from api_yamdb.settings import (MAX_LEN_CODE, MAX_LEN_BIO, MAX_LEN_ROLE)
 
 
 ROLE_VARIANTS = [
+    ('anon', 'anonimous'),
     ('admin', 'admin'),
     ('moderator', 'moderator'),
     ('user', 'user')

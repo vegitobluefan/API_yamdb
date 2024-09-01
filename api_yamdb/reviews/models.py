@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class NameSlugMixin(models.Model):
@@ -14,6 +15,21 @@ class NameSlugMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class TextPubdateMixin(models.Model):
+    """Миксин для полей text и pubdate."""
+
+    text = models.CharField(
+        max_length=settings.TEXT_LENGTH,
+        verbose_name='Текст'
+    )
+
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
 
 
 class Categories(NameSlugMixin):
@@ -69,3 +85,61 @@ class Titles(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class Reviews(TextPubdateMixin):
+    title = models.ForeignKey(
+        Titles,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='произведение'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='автор'
+    )
+    score = models.IntegerField(
+        verbose_name='оценка',
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ),
+        error_messages={'validators': 'Оценка от 1 до 10!'}
+    )
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author', ),
+                name='Ограничение на уникальность'
+            )]
+        ordering = ('pub_date',)
+
+    def __str__(self):
+        return self.text
+
+
+class Comments(TextPubdateMixin):
+    review = models.ForeignKey(
+        Reviews,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='отзыв'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='автор'
+    )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return self.text

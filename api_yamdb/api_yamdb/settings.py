@@ -121,6 +121,7 @@ AUTH_USER_MODEL = 'users.User'
 MAX_LEN_CODE = 200
 MAX_LEN_BIO = 100
 MAX_LEN_ROLE = 10
+TEXT_LENGTH = 200
 
 # Authorization
 

@@ -20,6 +20,21 @@ class NameSlugMixin(models.Model):
         abstract = True
 
 
+class TextPubdateMixin(models.Model):
+    """Миксин для полей text и pubdate."""
+
+    text = models.CharField(
+        max_length=settings.TEXT_LENGTH,
+        verbose_name='Текст'
+    )
+
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
+
+
 class Categories(NameSlugMixin):
     """Модель для категорий произведений."""
 
@@ -75,16 +90,12 @@ class Titles(models.Model):
         return self.title
 
 
-class Reviews(models.Model):
+class Reviews(TextPubdateMixin):
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='произведение'
-    )
-    text = models.CharField(
-        max_length=200,
-        verbose_name='Текст отзыва'
     )
     author = models.ForeignKey(
         User,
@@ -99,11 +110,6 @@ class Reviews(models.Model):
             MaxValueValidator(10)
         ),
         error_messages={'validators': 'Оценка от 1 до 10!'}
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='дата публикации',
-        auto_now_add=True,
-        db_index=True
     )
 
     class Meta:
@@ -120,27 +126,18 @@ class Reviews(models.Model):
         return self.text
 
 
-class Comments(models.Model):
+class Comments(TextPubdateMixin):
     review = models.ForeignKey(
         Reviews,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='отзыв'
     )
-    text = models.CharField(
-        verbose_name='текст комментария',
-        max_length=200
-    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='comments',
         verbose_name='автор'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='дата публикации',
-        auto_now_add=True,
-        db_index=True
     )
 
     class Meta:

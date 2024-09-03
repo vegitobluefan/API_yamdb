@@ -68,7 +68,6 @@ def registration(request):
             status=status.HTTP_400_BAD_REQUEST,
             data="Пользователь с таким username уже существует."
         )
-    status.HTTP_403_FORBIDDEN
     user, code_created = User.objects.get_or_create(
         email=email,
         username=username)

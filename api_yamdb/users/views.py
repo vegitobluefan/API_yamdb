@@ -28,11 +28,11 @@ class UserViewSet(viewsets.ModelViewSet):
     def me(self, request):
         if request.method == 'GET':
             serializer = UserSerializer(self.request.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserSerializer(self.request.user,
-                                    data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(role=request.user.role, partial=True)
+        else:
+            serializer = UserSerializer(
+                self.request.user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(role=request.user.role, partial=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

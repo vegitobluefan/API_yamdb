@@ -1,7 +1,6 @@
-from django.db import models
+from api_yamdb.settings import MAX_LEN_BIO, MAX_LEN_CODE, MAX_VALUE
 from django.contrib.auth.models import AbstractUser
-from api_yamdb.settings import (MAX_LEN_CODE, MAX_LEN_BIO, MAX_LEN_ROLE)
-
+from django.db import models
 
 ROLE_VARIANTS = [
     ('anon', 'anonimous'),
@@ -31,7 +30,7 @@ class User(AbstractUser):
         verbose_name='Роль',
         choices=ROLE_VARIANTS,
         default='user',
-        max_length=MAX_LEN_ROLE
+        max_length=MAX_VALUE
     )
     confirmation_code = models.CharField(
         verbose_name='Код подтверждения',

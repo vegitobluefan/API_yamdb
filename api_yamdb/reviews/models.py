@@ -1,73 +1,69 @@
-from django.conf import settings
-from django.db import models
+from api_yamdb.settings import (MAX_CHAR_LEN, MAX_SLUG_LEN, MAX_VALUE,
+                                MIN_VALUE, TEXT_LENGTH)
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.db import models
 from users.models import User
 
 
-class NameSlugMixin(models.Model):
+class NameSlugBaseModel(models.Model):
     """Миксин для полей name и slug."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN, verbose_name='Название',
+        max_length=MAX_CHAR_LEN, verbose_name='Название',
     )
     slug = models.SlugField(
-        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
+        max_length=MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
     )
 
-    class Meta:
-        abstract = True
+    def __str__(self) -> str:
+        return self.title
 
 
-class TextPubdateMixin(models.Model):
+class TextPubdateBaseModel(models.Model):
     """Миксин для полей text и pubdate."""
 
     text = models.CharField(
-        max_length=settings.TEXT_LENGTH,
+        max_length=TEXT_LENGTH,
         verbose_name='Текст'
     )
-
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
         auto_now_add=True,
         db_index=True
     )
 
+    def __str__(self) -> str:
+        return self.text
 
-class Category(NameSlugMixin):
+
+class Category(NameSlugBaseModel):
     """Модель для категорий произведений."""
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self) -> str:
-        return self.title
 
-
-class Genre(NameSlugMixin):
+class Genre(NameSlugBaseModel):
     """Модель для жанров произведений."""
 
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self) -> str:
-        return self.title
-
 
 class Title(models.Model):
     """Модель для произведений."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN, verbose_name='Название произведения',
+        max_length=MAX_CHAR_LEN, verbose_name='Название произведения',
     )
-    year = models.IntegerField(
+    year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
     )
     description = models.CharField(
         verbose_name='Описание произведения',
-        max_length=settings.MAX_CHAR_LEN,
+        max_length=MAX_CHAR_LEN,
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -89,7 +85,7 @@ class Title(models.Model):
         return self.title
 
 
-class Review(TextPubdateMixin):
+class Review(TextPubdateBaseModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -102,11 +98,11 @@ class Review(TextPubdateMixin):
         related_name='reviews',
         verbose_name='автор'
     )
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         verbose_name='оценка',
         validators=(
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(MIN_VALUE),
+            MaxValueValidator(MAX_VALUE)
         ),
         error_messages={'validators': 'Оценка от 1 до 10!'}
     )
@@ -121,11 +117,8 @@ class Review(TextPubdateMixin):
             )]
         ordering = ('pub_date',)
 
-    def __str__(self):
-        return self.text
 
-
-class Comment(TextPubdateMixin):
+class Comment(TextPubdateBaseModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -142,6 +135,3 @@ class Comment(TextPubdateMixin):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return self.text

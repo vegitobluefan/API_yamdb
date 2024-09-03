@@ -1,9 +1,11 @@
-from .models import User
-
-from rest_framework import serializers
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.tokens import default_token_generator
 import re
+
+from api_yamdb.settings import MAX_EMAIL_LEN, MAX_USERNAME_LEN
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,11 +32,11 @@ class UserCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'Выберите другой username')
 
-        if len(data['email']) > 254:
+        if len(data['email']) > MAX_EMAIL_LEN:
             raise serializers.ValidationError(
                 'Email слишком длинный')
 
-        if len(data['username']) > 150:
+        if len(data['username']) > MAX_USERNAME_LEN:
             raise serializers.ValidationError(
                 'Имя пользователя слишком длинное')
 

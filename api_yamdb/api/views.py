@@ -7,7 +7,8 @@ from rest_framework.permissions import SAFE_METHODS
 from reviews.models import Category, Genre, Review, Title
 
 from .filters import TitlesFilter
-from .permissions import AdminOrSuperuserOrReadOnly, AdminOrAuthorOrReadOnly
+from .permissions import (AdminOrSuperuserOrReadOnly,
+                          AuthenticatedAndAdminOrAuthorOrReadOnly)
 from .serializers import (CategoriesSerializer, CommentsSerializer,
                           GenresSerializer, ReviewsSerializer,
                           TitleRatingSerializer, TitlesSerializer)
@@ -46,7 +47,7 @@ class GenresViewSet(CategoriesGenresMixin):
 class TitlesViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Titles."""
 
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitlesSerializer
     permission_classes = (AdminOrSuperuserOrReadOnly,)
     pagination_class = LimitOffsetPagination
@@ -60,15 +61,12 @@ class TitlesViewSet(viewsets.ModelViewSet):
             return TitlesSerializer
         return TitleRatingSerializer
 
-    def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('reviews__score'))
-
 
 class ReviewsViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Reviews."""
 
     serializer_class = ReviewsSerializer
-    permission_classes = (AdminOrAuthorOrReadOnly,)
+    permission_classes = (AuthenticatedAndAdminOrAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     def get_title(self):
@@ -91,7 +89,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Comments."""
 
     serializer_class = CommentsSerializer
-    permission_classes = (AdminOrAuthorOrReadOnly,)
+    permission_classes = (AuthenticatedAndAdminOrAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     def get_review(self):

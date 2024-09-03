@@ -51,19 +51,13 @@ def registration(request):
     ):
         return Response(status=status.HTTP_200_OK)
 
-    if (
-        User.objects.filter(email=email).exists()
-        and not User.objects.filter(username=username).exists()
-    ):
+    if User.objects.filter(email=email).exists():
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data="Пользователь с таким email уже существует."
         )
 
-    if (
-        not User.objects.filter(email=email).exists()
-        and User.objects.filter(username=username).exists()
-    ):
+    if User.objects.filter(username=username).exists():
         return Response(
             status=status.HTTP_400_BAD_REQUEST,
             data="Пользователь с таким username уже существует."
@@ -76,18 +70,13 @@ def registration(request):
     user.confirmation_code = confirmation_code
     user.save()
 
-    try:
-        send_mail(
-            subject='Confirmation code',
-            message=f"Your code - {confirmation_code}",
-            from_email=None,
-            recipient_list=[email],
-            fail_silently=False
-        )
-    except OSError:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        data="Network is unreachable")
-
+    send_mail(
+        subject='Confirmation code',
+        message=f"Your code - {confirmation_code}",
+        from_email=None,
+        recipient_list=[email],
+        fail_silently=False
+    )
     return Response(
         serializer.data,
         status=status.HTTP_200_OK

@@ -5,7 +5,9 @@ from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
                                 MIN_VALUE, TEXT_LENGTH)
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (MaxValueValidator,
+                                    MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 
 
@@ -72,12 +74,23 @@ class User(AbstractUser):
         default=Roles.USER,
         max_length=MAX_VALUE
     )
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        blank=False,
+        max_length=MAX_USERNAME_LEN,
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z',
+                message="Имя пользователя некорректно.",
+                code="invalid_registration",
+            ),]
+    )
 
     @property
     def is_admin(self):
-        return (
-            self.role == self.Roles.ADMIN or self.is_superuser or self.is_staff
-        )
+        return (self.role == self.Roles.ADMIN
+                or self.is_superuser or self.is_staff)
 
     @property
     def is_moderator(self):

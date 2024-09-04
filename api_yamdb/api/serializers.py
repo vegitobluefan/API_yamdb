@@ -117,12 +117,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.Serializer):
     """Сериализатор для создания User."""
-    email = serializers.EmailField(required=True)
-    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True,
+                                   max_length=MAX_EMAIL_LEN)
+    username = serializers.CharField(required=True,
+                                     max_length=MAX_USERNAME_LEN)
+
+    def return_response(self, msg):
+        raise serializers.ValidationError(msg)
 
     def create(self, validated_data):
-        def return_response(msg):
-            raise serializers.ValidationError(msg)
+
         if (
             User.objects.filter(username=validated_data['username']).exists()
             and User.objects.filter(email=validated_data['email']).exists()
@@ -132,10 +136,11 @@ class UserCreateSerializer(serializers.Serializer):
             return user
 
         if User.objects.filter(email=validated_data['email']).exists():
-            return_response("Пользователь с таким email уже существует.")
+            self.return_response("Пользователь с таким email уже существует.")
 
         if User.objects.filter(username=validated_data['username']).exists():
-            return_response("Пользователь с таким username уже существует.")
+            self.return_response(
+                "Пользователь с таким username уже существует.")
 
         if validated_data['username'] == 'me':
             raise serializers.ValidationError(
@@ -145,23 +150,18 @@ class UserCreateSerializer(serializers.Serializer):
         return user
 
     def validate(self, data):
-
         if data['username'] == 'me':
             raise serializers.ValidationError(
                 'Выберите другой username')
 
-        if len(data['email']) > MAX_EMAIL_LEN:
-            raise serializers.ValidationError(
-                'Email слишком длинный')
-
-        if len(data['username']) > MAX_USERNAME_LEN:
-            raise serializers.ValidationError(
-                'Имя пользователя слишком длинное')
+        if data['username'] == 'me':
+            self.return_response(
+                'Выберите другой username')
 
         pattern = re.compile(r'^[\w.@+-]+\Z')
 
         if not re.match(pattern, data['username']):
-            raise serializers.ValidationError(
+            self.return_response(
                 'Имя пользователя включает запрещенные символы')
 
         return data

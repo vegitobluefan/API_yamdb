@@ -84,7 +84,7 @@ class User(AbstractUser):
                 regex=r'^[\w.@+-]+\Z',
                 message="Имя пользователя некорректно.",
                 code="invalid_registration",
-            ),]
+            ), ]
     )
 
     @property

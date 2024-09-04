@@ -1,23 +1,19 @@
-from api_yamdb.settings import MAX_LEN_BIO, MAX_VALUE
+from api_yamdb.settings import MAX_LEN_BIO, MAX_VALUE, MAX_EMAIL_LEN
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
-
-TEXT_CHOISES = [
-    ('admin', ADMIN),
-    ('moderator', MODERATOR),
-    ('user', USER)
-]
 
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
+    class Roles(models.TextChoices):
+        """Класс ролей."""
+        USER = 'user', 'Пользователь'
+        MODERATOR = 'moderator', 'Модератор'
+        ADMIN = 'admin', 'Администратор'
     email = models.EmailField(
         verbose_name='Электронная почта',
-        unique=True
+        unique=True,
+        max_length=MAX_EMAIL_LEN
     )
     bio = models.CharField(
         verbose_name='Биография',
@@ -27,18 +23,19 @@ class User(AbstractUser):
     )
     role = models.CharField(
         verbose_name='Роль',
-        choices=TEXT_CHOISES,
-        default=USER,
+        choices=Roles.choices,
+        default=Roles.USER,
         max_length=MAX_VALUE
     )
 
+
     @property
     def is_admin(self):
-        return self.role == ADMIN or self.is_superuser or self.is_staff
+        return self.role == self.Roles.ADMIN or self.is_superuser or self.is_staff
 
     @property
     def is_moderator(self):
-        return self.role == MODERATOR
+        return self.role == self.Roles.MODERATOR
 
     class Meta(AbstractUser.Meta):
         ordering = ['username']

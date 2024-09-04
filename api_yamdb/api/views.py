@@ -146,11 +146,9 @@ class UserViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.AllowAny])
 def registration(request):
     """Функция для регистрации."""
-
     user = UserCreateSerializer(data=request.data)
     user.is_valid(raise_exception=True)
     user.save()
-    # breakpoint()
     email = user.data['email']
     username = user.data['username']
     data = user.data

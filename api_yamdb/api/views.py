@@ -146,35 +146,19 @@ class UserViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.AllowAny])
 def registration(request):
     """Функция для регистрации."""
-    serializer = UserCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    email = serializer.validated_data['email']
-    username = serializer.validated_data['username']
 
-    if (
-        User.objects.filter(email=email).exists()
-        and User.objects.filter(username=username).exists()
-    ):
-        return Response(status=status.HTTP_200_OK)
-
-    if User.objects.filter(email=email).exists():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data="Пользователь с таким email уже существует."
-        )
-
-    if User.objects.filter(username=username).exists():
-        return Response(
-            status=status.HTTP_400_BAD_REQUEST,
-            data="Пользователь с таким username уже существует."
-        )
-    user, code_created = User.objects.get_or_create(
+    user = UserCreateSerializer(data=request.data)
+    user.is_valid(raise_exception=True)
+    user.save()
+    # breakpoint()
+    email = user.data['email']
+    username = user.data['username']
+    data = user.data
+    user = User.objects.get(
         email=email,
         username=username)
 
     confirmation_code = default_token_generator.make_token(user)
-    user.confirmation_code = confirmation_code
-    user.save()
 
     send_mail(
         subject='Confirmation code',
@@ -184,7 +168,7 @@ def registration(request):
         fail_silently=False
     )
     return Response(
-        serializer.data,
+        data,
         status=status.HTTP_200_OK
     )
 

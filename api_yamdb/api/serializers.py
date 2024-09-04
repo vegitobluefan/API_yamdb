@@ -124,7 +124,33 @@ class UserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(required=True)
 
+    def create(self, validated_data):
+        def return_response(msg):
+            raise serializers.ValidationError(msg)
+        if (
+            User.objects.filter(username=validated_data['username']).exists() and
+            User.objects.filter(email=validated_data['email']).exists()
+        ):
+            user = User.objects.get(username=validated_data['username'],
+                                    email=validated_data['email'])
+            return user
+
+        if User.objects.filter(email=validated_data['email']).exists():
+            return_response("Пользователь с таким email уже существует.")
+
+        if User.objects.filter(username=validated_data['username']).exists():
+            return_response("Пользователь с таким username уже существует.")
+        
+        if validated_data['username'] == 'me':
+            raise serializers.ValidationError(
+                'Выберите другой username')
+
+        user = User.objects.create(**validated_data)
+        return user
+
+
     def validate(self, data):
+        
         if data['username'] == 'me':
             raise serializers.ValidationError(
                 'Выберите другой username')

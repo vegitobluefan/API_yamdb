@@ -1,14 +1,10 @@
 import re
 
-from reviews.models import (Category, Genre, Title, Review, Comment)
-from users.models import User
-
 from api_yamdb.settings import MAX_EMAIL_LEN, MAX_USERNAME_LEN
-
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -128,8 +124,8 @@ class UserCreateSerializer(serializers.Serializer):
         def return_response(msg):
             raise serializers.ValidationError(msg)
         if (
-            User.objects.filter(username=validated_data['username']).exists() and
-            User.objects.filter(email=validated_data['email']).exists()
+            User.objects.filter(username=validated_data['username']).exists()
+            and User.objects.filter(email=validated_data['email']).exists()
         ):
             user = User.objects.get(username=validated_data['username'],
                                     email=validated_data['email'])
@@ -140,7 +136,7 @@ class UserCreateSerializer(serializers.Serializer):
 
         if User.objects.filter(username=validated_data['username']).exists():
             return_response("Пользователь с таким username уже существует.")
-        
+
         if validated_data['username'] == 'me':
             raise serializers.ValidationError(
                 'Выберите другой username')
@@ -148,9 +144,8 @@ class UserCreateSerializer(serializers.Serializer):
         user = User.objects.create(**validated_data)
         return user
 
-
     def validate(self, data):
-        
+
         if data['username'] == 'me':
             raise serializers.ValidationError(
                 'Выберите другой username')

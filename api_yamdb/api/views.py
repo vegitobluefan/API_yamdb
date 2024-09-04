@@ -1,28 +1,24 @@
-from django.db.models import Avg
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, mixins, viewsets, permissions, status
+from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import SAFE_METHODS
-from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
-from reviews.models import Category, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitlesFilter
 from .permissions import (AdminOrSuperuserOrReadOnly,
-                          AuthenticatedAndAdminOrAuthorOrReadOnly,
-                          IsAdmin)
+                          AuthenticatedAndAdminOrAuthorOrReadOnly, IsAdmin)
 from .serializers import (CategoriesSerializer, CommentsSerializer,
                           GenresSerializer, ReviewsSerializer,
                           TitleRatingSerializer, TitlesSerializer,
                           UserAccessTokenSerializer, UserCreateSerializer,
                           UserSerializer)
-
-from users.models import User
 
 
 class CategoriesGenresMixin(

@@ -1,8 +1,95 @@
-from api_yamdb.settings import (MAX_CHAR_LEN, MAX_SLUG_LEN, MAX_VALUE,
+import re
+
+from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
+                                MAX_SLUG_LEN, MAX_USERNAME_LEN, MAX_VALUE,
                                 MIN_VALUE, TEXT_LENGTH)
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from users.models import User
+
+
+class Roles(models.TextChoices):
+    """Класс ролей."""
+    USER = 'user', 'Пользователь'
+    MODERATOR = 'moderator', 'Модератор'
+    ADMIN = 'admin', 'Администратор'
+
+
+def return_response(msg):
+    raise ValidationError(msg)
+
+
+def validation_email(data):
+    if len(data) > MAX_EMAIL_LEN:
+        raise ValidationError(
+            'Email слишком длинный')
+
+    if User.objects.filter(email=data).exists():
+        return_response("Пользователь с таким email уже существует.")
+
+
+def validation_username(data):
+    if data == 'me':
+        return_response(
+            'Выберите другой username')
+
+    if len(data) > MAX_USERNAME_LEN:
+        return_response(
+            'Имя пользователя слишком длинное')
+
+    pattern = re.compile(r'^[\w.@+-]+\Z')
+
+    if not re.match(pattern, data):
+        return_response(
+            'Имя пользователя включает запрещенные символы')
+
+    if User.objects.filter(username=data).exists():
+        return_response("Пользователь с таким username уже существует.")
+
+
+class User(AbstractUser):
+    """Модель для описания пользователя."""
+    class Roles(models.TextChoices):
+        """Класс ролей."""
+        USER = 'user', 'Пользователь'
+        MODERATOR = 'moderator', 'Модератор'
+        ADMIN = 'admin', 'Администратор'
+    email = models.EmailField(
+        verbose_name='Электронная почта',
+        unique=True,
+        max_length=MAX_EMAIL_LEN
+    )
+    bio = models.CharField(
+        verbose_name='Биография',
+        max_length=MAX_LEN_BIO,
+        blank=True,
+        null=True
+    )
+    role = models.CharField(
+        verbose_name='Роль',
+        choices=Roles.choices,
+        default=Roles.USER,
+        max_length=MAX_VALUE
+    )
+
+    @property
+    def is_admin(self):
+        return (
+            self.role == self.Roles.ADMIN or self.is_superuser or self.is_staff
+        )
+
+    @property
+    def is_moderator(self):
+        return self.role == self.Roles.MODERATOR
+
+    class Meta(AbstractUser.Meta):
+        ordering = ['username']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
 
 class NameSlugBaseModel(models.Model):

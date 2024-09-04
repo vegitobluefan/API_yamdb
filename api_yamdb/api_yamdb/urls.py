@@ -7,7 +7,6 @@ API_VERSION = 'v1'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('api/', include('users.urls', namespace='users')),
     path(
         'redoc/',
         TemplateView.as_view(template_name='redoc.html'),

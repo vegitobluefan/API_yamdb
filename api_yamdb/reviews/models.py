@@ -1,73 +1,156 @@
-from django.conf import settings
-from django.db import models
+import re
+
+from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
+                                MAX_SLUG_LEN, MAX_USERNAME_LEN, MAX_VALUE,
+                                MIN_VALUE, TEXT_LENGTH)
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
-from users.models import User
+
+class Roles(models.TextChoices):
+    """Класс ролей."""
+    USER = 'user', 'Пользователь'
+    MODERATOR = 'moderator', 'Модератор'
+    ADMIN = 'admin', 'Администратор'
 
 
-class NameSlugMixin(models.Model):
+def return_response(msg):
+    raise ValidationError(msg)
+
+
+def validation_email(data):
+    if len(data) > MAX_EMAIL_LEN:
+        raise ValidationError(
+            'Email слишком длинный')
+
+    if User.objects.filter(email=data).exists():
+        return_response("Пользователь с таким email уже существует.")
+
+
+def validation_username(data):
+    if data == 'me':
+        return_response(
+            'Выберите другой username')
+
+    if len(data) > MAX_USERNAME_LEN:
+        return_response(
+            'Имя пользователя слишком длинное')
+
+    pattern = re.compile(r'^[\w.@+-]+\Z')
+
+    if not re.match(pattern, data):
+        return_response(
+            'Имя пользователя включает запрещенные символы')
+
+    if User.objects.filter(username=data).exists():
+        return_response("Пользователь с таким username уже существует.")
+
+
+class User(AbstractUser):
+    """Модель для описания пользователя."""
+    class Roles(models.TextChoices):
+        """Класс ролей."""
+        USER = 'user', 'Пользователь'
+        MODERATOR = 'moderator', 'Модератор'
+        ADMIN = 'admin', 'Администратор'
+    email = models.EmailField(
+        verbose_name='Электронная почта',
+        unique=True,
+        max_length=MAX_EMAIL_LEN
+    )
+    bio = models.CharField(
+        verbose_name='Биография',
+        max_length=MAX_LEN_BIO,
+        blank=True,
+        null=True
+    )
+    role = models.CharField(
+        verbose_name='Роль',
+        choices=Roles.choices,
+        default=Roles.USER,
+        max_length=MAX_VALUE
+    )
+
+    @property
+    def is_admin(self):
+        return (
+            self.role == self.Roles.ADMIN or self.is_superuser or self.is_staff
+        )
+
+    @property
+    def is_moderator(self):
+        return self.role == self.Roles.MODERATOR
+
+    class Meta(AbstractUser.Meta):
+        ordering = ['username']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
+
+
+class NameSlugBaseModel(models.Model):
     """Миксин для полей name и slug."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN, verbose_name='Название',
+        max_length=MAX_CHAR_LEN, verbose_name='Название',
     )
     slug = models.SlugField(
-        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
+        max_length=MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
     )
 
-    class Meta:
-        abstract = True
+    def __str__(self) -> str:
+        return self.title
 
 
-class TextPubdateMixin(models.Model):
+class TextPubdateBaseModel(models.Model):
     """Миксин для полей text и pubdate."""
 
     text = models.CharField(
-        max_length=settings.TEXT_LENGTH,
+        max_length=TEXT_LENGTH,
         verbose_name='Текст'
     )
-
     pub_date = models.DateTimeField(
         verbose_name='дата публикации',
         auto_now_add=True,
         db_index=True
     )
 
+    def __str__(self) -> str:
+        return self.text
 
-class Category(NameSlugMixin):
+
+class Category(NameSlugBaseModel):
     """Модель для категорий произведений."""
 
     class Meta:
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self) -> str:
-        return self.title
 
-
-class Genre(NameSlugMixin):
+class Genre(NameSlugBaseModel):
     """Модель для жанров произведений."""
 
     class Meta:
         verbose_name = 'жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self) -> str:
-        return self.title
-
 
 class Title(models.Model):
     """Модель для произведений."""
 
     name = models.CharField(
-        max_length=settings.MAX_CHAR_LEN, verbose_name='Название произведения',
+        max_length=MAX_CHAR_LEN, verbose_name='Название произведения',
     )
-    year = models.IntegerField(
+    year = models.PositiveSmallIntegerField(
         verbose_name='Год выпуска',
     )
     description = models.CharField(
         verbose_name='Описание произведения',
-        max_length=settings.MAX_CHAR_LEN,
+        max_length=MAX_CHAR_LEN,
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -89,7 +172,7 @@ class Title(models.Model):
         return self.title
 
 
-class Review(TextPubdateMixin):
+class Review(TextPubdateBaseModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -102,11 +185,11 @@ class Review(TextPubdateMixin):
         related_name='reviews',
         verbose_name='автор'
     )
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         verbose_name='оценка',
         validators=(
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(MIN_VALUE),
+            MaxValueValidator(MAX_VALUE)
         ),
         error_messages={'validators': 'Оценка от 1 до 10!'}
     )
@@ -121,11 +204,8 @@ class Review(TextPubdateMixin):
             )]
         ordering = ('pub_date',)
 
-    def __str__(self):
-        return self.text
 
-
-class Comment(TextPubdateMixin):
+class Comment(TextPubdateBaseModel):
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
@@ -142,6 +222,3 @@ class Comment(TextPubdateMixin):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return self.text

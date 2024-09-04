@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'django_filters',
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
-    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -116,12 +115,14 @@ MAX_CHAR_LEN = 256
 
 MAX_SLUG_LEN = 50
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'reviews.User'
 
-MAX_LEN_CODE = 200
+MAX_EMAIL_LEN = 254
+MAX_USERNAME_LEN = 150
 MAX_LEN_BIO = 100
-MAX_LEN_ROLE = 10
+MAX_VALUE = 10
 TEXT_LENGTH = 200
+MIN_VALUE = 1
 
 # Authorization
 

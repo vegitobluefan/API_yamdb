@@ -1,10 +1,7 @@
-import re
-
 from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
                                 MAX_SLUG_LEN, MAX_USERNAME_LEN, MAX_VALUE,
                                 MIN_VALUE, TEXT_LENGTH)
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
 from django.core.validators import (MaxValueValidator,
                                     MinValueValidator,
                                     RegexValidator)

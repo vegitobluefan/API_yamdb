@@ -7,7 +7,6 @@ from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
-
 class CategoriesSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Categories."""
 
@@ -127,7 +126,6 @@ class UserCreateSerializer(serializers.Serializer):
         """Метод для dry."""
         raise serializers.ValidationError(msg)
 
-
     def validate(self, data):
         """Валидатор."""
         if data['username'] == 'me':
@@ -140,7 +138,10 @@ class UserCreateSerializer(serializers.Serializer):
             self.return_response(
                 'Имя пользователя включает запрещенные символы')
 
-        if (User.objects.filter(username=data['username']).exists() and User.objects.filter(email=data['email']).exists()):
+        if (
+            User.objects.filter(username=data['username']).exists()
+            and User.objects.filter(email=data['email']).exists()
+            ):
             return data
 
         if User.objects.filter(email=data['email']).exists():
@@ -154,7 +155,8 @@ class UserCreateSerializer(serializers.Serializer):
 
 class UserAccessTokenSerializer(serializers.Serializer):
     """Сериализатор для получения токена."""
-    username = serializers.CharField(required=True, max_length=MAX_USERNAME_LEN)
+    username = serializers.CharField(required=True,
+                                     max_length=MAX_USERNAME_LEN)
     confirmation_code = serializers.CharField(required=True)
 
     def validate(self, data):

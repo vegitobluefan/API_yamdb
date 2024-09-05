@@ -141,7 +141,7 @@ class UserCreateSerializer(serializers.Serializer):
         if (
             User.objects.filter(username=data['username']).exists()
             and User.objects.filter(email=data['email']).exists()
-            ):
+        ):
             return data
 
         if User.objects.filter(email=data['email']).exists():

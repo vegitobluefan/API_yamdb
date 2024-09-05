@@ -7,6 +7,7 @@ from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
+
 class CategoriesSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Categories."""
 
@@ -123,37 +124,12 @@ class UserCreateSerializer(serializers.Serializer):
                                      max_length=MAX_USERNAME_LEN)
 
     def return_response(self, msg):
+        """Метод для dry."""
         raise serializers.ValidationError(msg)
 
-    def create(self, validated_data):
-
-        if (
-            User.objects.filter(username=validated_data['username']).exists()
-            and User.objects.filter(email=validated_data['email']).exists()
-        ):
-            user = User.objects.get(username=validated_data['username'],
-                                    email=validated_data['email'])
-            return user
-
-        if User.objects.filter(email=validated_data['email']).exists():
-            self.return_response("Пользователь с таким email уже существует.")
-
-        if User.objects.filter(username=validated_data['username']).exists():
-            self.return_response(
-                "Пользователь с таким username уже существует.")
-
-        if validated_data['username'] == 'me':
-            raise serializers.ValidationError(
-                'Выберите другой username')
-
-        user = User.objects.create(**validated_data)
-        return user
 
     def validate(self, data):
-        if data['username'] == 'me':
-            raise serializers.ValidationError(
-                'Выберите другой username')
-
+        """Валидатор."""
         if data['username'] == 'me':
             self.return_response(
                 'Выберите другой username')
@@ -164,12 +140,21 @@ class UserCreateSerializer(serializers.Serializer):
             self.return_response(
                 'Имя пользователя включает запрещенные символы')
 
+        if (User.objects.filter(username=data['username']).exists() and User.objects.filter(email=data['email']).exists()):
+            return data
+
+        if User.objects.filter(email=data['email']).exists():
+            self.return_response("Пользователь с таким email уже существует.")
+
+        if User.objects.filter(username=data['username']).exists():
+            self.return_response(
+                "Пользователь с таким username уже существует.")
         return data
 
 
 class UserAccessTokenSerializer(serializers.Serializer):
     """Сериализатор для получения токена."""
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=MAX_USERNAME_LEN)
     confirmation_code = serializers.CharField(required=True)
 
     def validate(self, data):

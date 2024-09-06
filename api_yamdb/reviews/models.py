@@ -13,6 +13,7 @@ from django.db import models
 
 class Roles(models.TextChoices):
     """Класс ролей."""
+
     USER = 'user', 'Пользователь'
     MODERATOR = 'moderator', 'Модератор'
     ADMIN = 'admin', 'Администратор'
@@ -52,6 +53,7 @@ def validation_username(data):
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
+
     class Roles(models.TextChoices):
         """Класс ролей."""
         USER = 'user', 'Пользователь'
@@ -76,7 +78,6 @@ class User(AbstractUser):
     )
     username = models.CharField(
         verbose_name='Имя пользователя',
-        blank=False,
         max_length=MAX_USERNAME_LEN,
         unique=True,
         validators=[
@@ -158,7 +159,7 @@ class Title(models.Model):
     name = models.CharField(
         max_length=MAX_CHAR_LEN, verbose_name='Название произведения',
     )
-    year = models.PositiveSmallIntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Год выпуска',
     )
     description = models.CharField(
@@ -198,7 +199,7 @@ class Review(TextPubdateBaseModel):
         related_name='reviews',
         verbose_name='автор'
     )
-    score = models.SmallIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='оценка',
         validators=(
             MinValueValidator(MIN_VALUE),

@@ -19,9 +19,11 @@ class Roles(models.TextChoices):
     MODERATOR = 'moderator', 'Модератор'
     ADMIN = 'admin', 'Администратор'
 
+
 class validate_username_regex(UnicodeUsernameValidator):
     """Валидатор."""
     regex = (r'^[\w.@+-]+\Z')
+
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
@@ -83,21 +85,21 @@ class NameSlugBaseModel(models.Model):
         return self.title
 
 
-# class TextPubdateBaseModel(models.Model):
-    # """Миксин для полей text и pubdate."""
+class TextPubdateBaseModel(models.Model):
+    """Миксин для полей text и pubdate."""
 
-    # text = models.CharField(
-        # max_length=TEXT_LENGTH,
-        # verbose_name='Текст'
-    # )
-    # pub_date = models.DateTimeField(
-        # verbose_name='дата публикации',
-        # auto_now_add=True,
-        # db_index=True
-    # )
+    text = models.CharField(
+        max_length=TEXT_LENGTH,
+        verbose_name='Текст'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
 
-    # def __str__(self) -> str:
-        # return self.text
+    def __str__(self) -> str:
+        return self.text
 
 
 class Category(NameSlugBaseModel):
@@ -149,18 +151,9 @@ class Title(models.Model):
         return self.title
 
 
-class Review(models.Model):
+class Review(TextPubdateBaseModel):
     """Модель для отзывов."""
 
-    text = models.CharField(
-        max_length=TEXT_LENGTH,
-        verbose_name='Текст'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='дата публикации',
-        auto_now_add=True,
-        db_index=True
-    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -193,18 +186,9 @@ class Review(models.Model):
         ordering = ('pub_date',)
 
 
-class Comment(models.Model):
+class Comment(TextPubdateBaseModel):
     """Модель для комментариев."""
 
-    text = models.CharField(
-        max_length=TEXT_LENGTH,
-        verbose_name='Текст'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='дата публикации',
-        auto_now_add=True,
-        db_index=True
-    )
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,

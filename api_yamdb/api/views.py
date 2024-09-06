@@ -144,13 +144,12 @@ def registration(request):
     """Функция для регистрации."""
     user = UserCreateSerializer(data=request.data)
     user.is_valid(raise_exception=True)
-    user.save()
     email = user.data['email']
     username = user.data['username']
     data = user.data
-    user = User.objects.get(
+    user = User.objects.get_or_create(
         email=email,
-        username=username)
+        username=username)[0]
 
     confirmation_code = default_token_generator.make_token(user)
 

@@ -7,7 +7,7 @@ from .views import (CategoriesViewSet, CommentsViewSet, GenresViewSet,
                     registration)
 
 router_v1 = SimpleRouter()
-router_v1.register(r'users', UserViewSet, basename='users')
+router_v1.register('users', UserViewSet, basename='users')
 router_v1.register('genres', GenresViewSet, basename='genres')
 router_v1.register('categories', CategoriesViewSet, basename='categories')
 router_v1.register('titles', TitlesViewSet, basename='titles')

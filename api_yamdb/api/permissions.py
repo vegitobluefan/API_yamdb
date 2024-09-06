@@ -10,8 +10,8 @@ class IsAdmin(permissions.BasePermission):
         )
 
 
-class AuthenticatedAndAdminOrAuthorOrReadOnly(permissions.BasePermission):
-    """Автор, админ, модератор. В остальных случаях только чтение."""
+class IsAuthenticatedAndAdminOrAuthorOrReadOnly(permissions.BasePermission):
+    """Аутентифицирован, автор, админ, модератор."""
 
     def has_permission(self, request, view):
         return (
@@ -28,8 +28,8 @@ class AuthenticatedAndAdminOrAuthorOrReadOnly(permissions.BasePermission):
         )
 
 
-class AdminOrSuperuserOrReadOnly(permissions.BasePermission):
-    """Администратор или суперюзер. В остальных случаях только чтение."""
+class IsAuthenticatedAndAdminOrSuperuserOrReadOnly(permissions.BasePermission):
+    """Аутентифицирован, автор или суперюзер."""
 
     def has_permission(self, request, view):
         return (

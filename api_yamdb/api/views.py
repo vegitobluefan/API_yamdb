@@ -12,8 +12,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Review, Title, User
 
 from .filters import TitlesFilter
-from .permissions import (AdminOrSuperuserOrReadOnly,
-                          AuthenticatedAndAdminOrAuthorOrReadOnly, IsAdmin)
+from .permissions import (IsAdmin, IsAuthenticatedAndAdminOrAuthorOrReadOnly,
+                          IsAuthenticatedAndAdminOrSuperuserOrReadOnly)
 from .serializers import (CategoriesSerializer, CommentsSerializer,
                           GenresSerializer, ReviewsSerializer,
                           TitleRatingSerializer, TitlesSerializer,
@@ -31,7 +31,7 @@ class CategoriesGenresMixin(
 
     pagination_class = LimitOffsetPagination
     lookup_field = 'slug'
-    permission_classes = (AdminOrSuperuserOrReadOnly,)
+    permission_classes = (IsAuthenticatedAndAdminOrSuperuserOrReadOnly,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter,)
     search_fields = ('name',)
     ordering = ('id',)
@@ -56,7 +56,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitlesSerializer
-    permission_classes = (AdminOrSuperuserOrReadOnly,)
+    permission_classes = (IsAuthenticatedAndAdminOrSuperuserOrReadOnly,)
     pagination_class = LimitOffsetPagination
     filterset_class = TitlesFilter
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter,)
@@ -73,7 +73,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Reviews."""
 
     serializer_class = ReviewsSerializer
-    permission_classes = (AuthenticatedAndAdminOrAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     def get_title(self):
@@ -96,7 +96,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Comments."""
 
     serializer_class = CommentsSerializer
-    permission_classes = (AuthenticatedAndAdminOrAuthorOrReadOnly,)
+    permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     def get_review(self):

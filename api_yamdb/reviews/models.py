@@ -84,21 +84,21 @@ class NameSlugBaseModel(models.Model):
         return self.title
 
 
-class TextPubdateBaseModel(models.Model):
-    """Миксин для полей text и pubdate."""
+# class TextPubdateBaseModel(models.Model):
+    # """Миксин для полей text и pubdate."""
 
-    text = models.CharField(
-        max_length=TEXT_LENGTH,
-        verbose_name='Текст'
-    )
-    pub_date = models.DateTimeField(
-        verbose_name='дата публикации',
-        auto_now_add=True,
-        db_index=True
-    )
+    # text = models.CharField(
+        # max_length=TEXT_LENGTH,
+        # verbose_name='Текст'
+    # )
+    # pub_date = models.DateTimeField(
+        # verbose_name='дата публикации',
+        # auto_now_add=True,
+        # db_index=True
+    # )
 
-    def __str__(self) -> str:
-        return self.text
+    # def __str__(self) -> str:
+        # return self.text
 
 
 class Category(NameSlugBaseModel):
@@ -150,7 +150,18 @@ class Title(models.Model):
         return self.title
 
 
-class Review(TextPubdateBaseModel):
+class Review(models.Model):
+    """Модель для отзывов."""
+
+    text = models.CharField(
+        max_length=TEXT_LENGTH,
+        verbose_name='Текст'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -183,7 +194,18 @@ class Review(TextPubdateBaseModel):
         ordering = ('pub_date',)
 
 
-class Comment(TextPubdateBaseModel):
+class Comment(models.Model):
+    """Модель для комментариев."""
+
+    text = models.CharField(
+        max_length=TEXT_LENGTH,
+        verbose_name='Текст'
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='дата публикации',
+        auto_now_add=True,
+        db_index=True
+    )
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,

@@ -50,7 +50,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=MAX_USERNAME_LEN,
         unique=True,
-        validators=[username_validator, validate_username,]
+        validators=[username_validator, validate_username, ]
     )
 
     @property

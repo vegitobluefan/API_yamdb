@@ -7,8 +7,7 @@ from api.utils import validate_username
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import (MaxValueValidator,
-                                    MinValueValidator,
-                                    RegexValidator)
+                                    MinValueValidator)
 
 from django.db import models
 

@@ -1,10 +1,15 @@
 from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
                                 MAX_SLUG_LEN, MAX_USERNAME_LEN, MAX_VALUE,
                                 MIN_VALUE, TEXT_LENGTH)
+
+from api.utils import validate_username
+
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import (MaxValueValidator,
                                     MinValueValidator,
                                     RegexValidator)
+
 from django.db import models
 
 
@@ -15,9 +20,13 @@ class Roles(models.TextChoices):
     MODERATOR = 'moderator', 'Модератор'
     ADMIN = 'admin', 'Администратор'
 
+class validate_username_regex(UnicodeUsernameValidator):
+    """Валидатор."""
+    regex = (r'^[\w.@+-]+\Z')
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
+    username_validator = validate_username_regex()
 
     email = models.EmailField(
         verbose_name='Электронная почта',
@@ -40,12 +49,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=MAX_USERNAME_LEN,
         unique=True,
-        validators=[
-            RegexValidator(
-                regex=r'^[\w.@+-]+\Z',
-                message="Имя пользователя некорректно.",
-                code="invalid_registration",
-            ), ]
+        validators=[username_validator, validate_username,]
     )
 
     @property

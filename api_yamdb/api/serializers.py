@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
+from .utils import validate_username, return_response
+
 
 class CategoriesSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Categories."""
@@ -122,20 +124,14 @@ class UserCreateSerializer(serializers.Serializer):
     username = serializers.CharField(required=True,
                                      max_length=MAX_USERNAME_LEN)
 
-    def return_response(self, msg):
-        """Метод для dry."""
-        raise serializers.ValidationError(msg)
-
     def validate(self, data):
         """Валидатор."""
-        if data['username'] == 'me':
-            self.return_response(
-                'Выберите другой username')
+        validate_username(data['username'])
 
         pattern = re.compile(r'^[\w.@+-]+\Z')
 
         if not re.match(pattern, data['username']):
-            self.return_response(
+            return_response(
                 'Имя пользователя включает запрещенные символы')
 
         if (
@@ -145,10 +141,10 @@ class UserCreateSerializer(serializers.Serializer):
             return data
 
         if User.objects.filter(email=data['email']).exists():
-            self.return_response("Пользователь с таким email уже существует.")
+            return_response("Пользователь с таким email уже существует.")
 
         if User.objects.filter(username=data['username']).exists():
-            self.return_response(
+            return_response(
                 "Пользователь с таким username уже существует.")
         return data
 

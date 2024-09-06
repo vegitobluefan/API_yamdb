@@ -147,9 +147,10 @@ def registration(request):
     email = user.data['email']
     username = user.data['username']
     data = user.data
-    user = User.objects.get_or_create(
+
+    user, created = User.objects.get_or_create(
         email=email,
-        username=username)[0]
+        username=username)
 
     confirmation_code = default_token_generator.make_token(user)
 

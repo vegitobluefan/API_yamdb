@@ -1,15 +1,11 @@
-from api_yamdb.settings import (MAX_CHAR_LEN, MAX_EMAIL_LEN, MAX_LEN_BIO,
-                                MAX_SLUG_LEN, MAX_USERNAME_LEN, MAX_VALUE,
-                                MIN_VALUE, TEXT_LENGTH)
-
-from api.utils import validate_username
-
+# from api.utils import validate_username
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import (MaxValueValidator,
-                                    MinValueValidator)
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from .validators import validate_username
 
 
 class Roles(models.TextChoices):
@@ -20,23 +16,17 @@ class Roles(models.TextChoices):
     ADMIN = 'admin', 'Администратор'
 
 
-class validate_username_regex(UnicodeUsernameValidator):
-    """Валидатор."""
-    regex = (r'^[\w.@+-]+\Z')
-
-
 class User(AbstractUser):
     """Модель для описания пользователя."""
-    username_validator = validate_username_regex()
 
     email = models.EmailField(
         verbose_name='Электронная почта',
         unique=True,
-        max_length=MAX_EMAIL_LEN
+        max_length=settings.MAX_EMAIL_LEN
     )
     bio = models.CharField(
         verbose_name='Биография',
-        max_length=MAX_LEN_BIO,
+        max_length=settings.MAX_LEN_BIO,
         blank=True,
         null=True
     )
@@ -44,19 +34,18 @@ class User(AbstractUser):
         verbose_name='Роль',
         choices=Roles.choices,
         default=Roles.USER,
-        max_length=MAX_VALUE
+        max_length=settings.MAX_VALUE
     )
     username = models.CharField(
         verbose_name='Имя пользователя',
-        max_length=MAX_USERNAME_LEN,
+        max_length=settings.MAX_USERNAME_LEN,
         unique=True,
-        validators=[username_validator, validate_username, ]
+        validators=(validate_username, UnicodeUsernameValidator(),)
     )
 
     @property
     def is_admin(self):
-        return (self.role == Roles.ADMIN
-                or self.is_superuser or self.is_staff)
+        return self.role == Roles.ADMIN or self.is_superuser
 
     @property
     def is_moderator(self):
@@ -75,10 +64,10 @@ class NameSlugBaseModel(models.Model):
     """Миксин для полей name и slug."""
 
     name = models.CharField(
-        max_length=MAX_CHAR_LEN, verbose_name='Название',
+        max_length=settings.MAX_CHAR_LEN, verbose_name='Название',
     )
     slug = models.SlugField(
-        max_length=MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
+        max_length=settings.MAX_SLUG_LEN, verbose_name='Слаг', unique=True,
     )
 
     def __str__(self) -> str:
@@ -89,7 +78,7 @@ class TextPubdateBaseModel(models.Model):
     """Миксин для полей text и pubdate."""
 
     text = models.CharField(
-        max_length=TEXT_LENGTH,
+        max_length=settings.TEXT_LENGTH,
         verbose_name='Текст'
     )
     pub_date = models.DateTimeField(
@@ -122,14 +111,14 @@ class Title(models.Model):
     """Модель для произведений."""
 
     name = models.CharField(
-        max_length=MAX_CHAR_LEN, verbose_name='Название произведения',
+        max_length=settings.MAX_CHAR_LEN, verbose_name='Название произведения',
     )
     year = models.SmallIntegerField(
         verbose_name='Год выпуска',
     )
     description = models.CharField(
         verbose_name='Описание произведения',
-        max_length=MAX_CHAR_LEN,
+        max_length=settings.MAX_CHAR_LEN,
         blank=True,
     )
     genre = models.ManyToManyField(
@@ -169,8 +158,8 @@ class Review(TextPubdateBaseModel):
     score = models.PositiveSmallIntegerField(
         verbose_name='оценка',
         validators=(
-            MinValueValidator(MIN_VALUE),
-            MaxValueValidator(MAX_VALUE)
+            MinValueValidator(settings.MIN_VALUE),
+            MaxValueValidator(settings.MAX_VALUE)
         ),
         error_messages={'validators': 'Оценка от 1 до 10!'}
     )

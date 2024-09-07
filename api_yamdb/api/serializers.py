@@ -1,12 +1,10 @@
-import re
-
-from api_yamdb.settings import MAX_EMAIL_LEN, MAX_USERNAME_LEN
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
-
-from .utils import validate_username, return_response
+from django.core.exceptions import ValidationError
+from reviews.validators import validate_username
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -120,19 +118,13 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.Serializer):
     """Сериализатор для создания User."""
     email = serializers.EmailField(required=True,
-                                   max_length=MAX_EMAIL_LEN)
+                                   max_length=settings.MAX_EMAIL_LEN)
     username = serializers.CharField(required=True,
-                                     max_length=MAX_USERNAME_LEN)
+                                     max_length=settings.MAX_USERNAME_LEN)
 
     def validate(self, data):
         """Валидатор."""
         validate_username(data['username'])
-
-        pattern = re.compile(r'^[\w.@+-]+\Z')
-
-        if not re.match(pattern, data['username']):
-            return_response(
-                'Имя пользователя включает запрещенные символы')
 
         if (
             User.objects.filter(username=data['username']).exists()
@@ -141,18 +133,19 @@ class UserCreateSerializer(serializers.Serializer):
             return data
 
         if User.objects.filter(email=data['email']).exists():
-            return_response("Пользователь с таким email уже существует.")
+            raise ValidationError('Пользователь с таким email уже существует.')
 
         if User.objects.filter(username=data['username']).exists():
-            return_response(
-                "Пользователь с таким username уже существует.")
+            raise ValidationError(
+                'Пользователь с таким username уже существует.')
+
         return data
 
 
 class UserAccessTokenSerializer(serializers.Serializer):
     """Сериализатор для получения токена."""
     username = serializers.CharField(required=True,
-                                     max_length=MAX_USERNAME_LEN)
+                                     max_length=settings.MAX_USERNAME_LEN)
     confirmation_code = serializers.CharField(required=True)
 
     def validate(self, data):

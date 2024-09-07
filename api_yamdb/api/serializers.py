@@ -1,6 +1,6 @@
 import re
 
-from api_yamdb.settings import MAX_EMAIL_LEN, MAX_USERNAME_LEN
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -120,9 +120,9 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.Serializer):
     """Сериализатор для создания User."""
     email = serializers.EmailField(required=True,
-                                   max_length=MAX_EMAIL_LEN)
+                                   max_length=settings.MAX_EMAIL_LEN)
     username = serializers.CharField(required=True,
-                                     max_length=MAX_USERNAME_LEN)
+                                     max_length=settings.MAX_USERNAME_LEN)
 
     def validate(self, data):
         """Валидатор."""
@@ -152,7 +152,7 @@ class UserCreateSerializer(serializers.Serializer):
 class UserAccessTokenSerializer(serializers.Serializer):
     """Сериализатор для получения токена."""
     username = serializers.CharField(required=True,
-                                     max_length=MAX_USERNAME_LEN)
+                                     max_length=settings.MAX_USERNAME_LEN)
     confirmation_code = serializers.CharField(required=True)
 
     def validate(self, data):

@@ -1,14 +1,11 @@
 from rest_framework import permissions
-from reviews.models import Roles
 
 
 class IsAdmin(permissions.BasePermission):
     """Права доступа для админа."""
+
     def has_permission(self, request, view):
-        return (
-            request.user.is_superuser
-            or request.user.role == Roles.ADMIN
-        )
+        return request.user.is_admin
 
 
 class IsAuthenticatedAndAdminOrAuthorOrReadOnly(permissions.BasePermission):

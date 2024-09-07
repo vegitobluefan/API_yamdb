@@ -119,7 +119,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели User."""
     serializer_class = UserSerializer
     queryset = User.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    permission_classes = [permissions.IsAuthenticated, IsAdmin,]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     lookup_field = 'username'
     search_fields = ['username', ]

@@ -5,8 +5,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
-
-from .utils import validate_username, return_response
+from django.core.exceptions import ValidationError
+from reviews.validators import validate_username
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -128,12 +128,6 @@ class UserCreateSerializer(serializers.Serializer):
         """Валидатор."""
         validate_username(data['username'])
 
-        pattern = re.compile(r'^[\w.@+-]+\Z')
-
-        if not re.match(pattern, data['username']):
-            return_response(
-                'Имя пользователя включает запрещенные символы')
-
         if (
             User.objects.filter(username=data['username']).exists()
             and User.objects.filter(email=data['email']).exists()
@@ -141,11 +135,12 @@ class UserCreateSerializer(serializers.Serializer):
             return data
 
         if User.objects.filter(email=data['email']).exists():
-            return_response("Пользователь с таким email уже существует.")
+            raise ValidationError('Пользователь с таким email уже существует.')
 
         if User.objects.filter(username=data['username']).exists():
-            return_response(
-                "Пользователь с таким username уже существует.")
+            raise ValidationError(
+                'Пользователь с таким username уже существует.')
+
         return data
 
 

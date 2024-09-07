@@ -1,9 +1,11 @@
-from api.utils import validate_username
+# from api.utils import validate_username
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from .validators import validate_username
 
 
 class Roles(models.TextChoices):
@@ -39,7 +41,7 @@ class User(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=settings.MAX_USERNAME_LEN,
         unique=True,
-        validators=[username_validator, validate_username, ]
+        validators=(validate_username, UnicodeUsernameValidator(),)
     )
 
     @property

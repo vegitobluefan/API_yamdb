@@ -18,7 +18,6 @@ class Roles(models.TextChoices):
 
 class User(AbstractUser):
     """Модель для описания пользователя."""
-    username_validator = UnicodeUsernameValidator()
 
     email = models.EmailField(
         verbose_name='Электронная почта',

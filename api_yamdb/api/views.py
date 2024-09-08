@@ -96,6 +96,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Comments."""
 
     serializer_class = CommentsSerializer
+    pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthenticatedAndAdminOrAuthorOrReadOnly,)
     http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
@@ -117,13 +118,14 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ModelViewSet):
     """Вьюсет для модели User."""
+
     serializer_class = UserSerializer
     queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsAdmin, ]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     lookup_field = 'username'
     search_fields = ['username', ]
-    http_method_names = ["get", "post", "delete", "patch"]
+    http_method_names = ('get', 'post', 'head', 'patch', 'delete',)
 
     @action(methods=['patch', 'get'], detail=False,
             permission_classes=[permissions.IsAuthenticated])
@@ -142,6 +144,7 @@ class UserViewSet(viewsets.ModelViewSet):
 @permission_classes([permissions.AllowAny])
 def registration(request):
     """Функция для регистрации."""
+
     user = UserCreateSerializer(data=request.data)
     user.is_valid(raise_exception=True)
     email = user.data['email']

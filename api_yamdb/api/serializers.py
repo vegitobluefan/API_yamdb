@@ -8,7 +8,7 @@ from reviews.validators import validate_username
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Categories."""
+    """Сериализатор для модели Category."""
 
     class Meta:
         model = Category
@@ -58,6 +58,8 @@ class TitleRatingSerializer(serializers.ModelSerializer):
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Review."""
+
     title = serializers.SlugRelatedField(
         slug_field='name',
         read_only=True
@@ -86,6 +88,8 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
 
 class CommentsSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Comment."""
+
     review = serializers.SlugRelatedField(
         slug_field='text',
         read_only=True
@@ -103,6 +107,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для модели User."""
+
     class Meta:
         model = User
         fields = (
@@ -117,6 +122,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserCreateSerializer(serializers.Serializer):
     """Сериализатор для создания User."""
+
     email = serializers.EmailField(required=True,
                                    max_length=settings.MAX_EMAIL_LEN)
     username = serializers.CharField(required=True,
@@ -124,6 +130,7 @@ class UserCreateSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Валидатор."""
+
         validate_username(data['username'])
 
         if (
@@ -144,6 +151,7 @@ class UserCreateSerializer(serializers.Serializer):
 
 class UserAccessTokenSerializer(serializers.Serializer):
     """Сериализатор для получения токена."""
+
     username = serializers.CharField(required=True,
                                      max_length=settings.MAX_USERNAME_LEN)
     confirmation_code = serializers.CharField(required=True)
